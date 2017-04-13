@@ -10,16 +10,12 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 
 import slaby.cz.game.Pexeso;
 
-/**
- * Created by fanda on 13.04.2017.
- */
-
 public class EndGameScreen implements Screen {
 
-    SpriteBatch batch;
-    Stage stage;
-    int score;
-    Skin skin;
+    private SpriteBatch batch;
+    private Stage stage;
+    private int score;
+    private Skin skin;
 
     public EndGameScreen(SpriteBatch batch, int score) {
         this.batch = batch;
