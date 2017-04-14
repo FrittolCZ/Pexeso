@@ -5,7 +5,9 @@
     <mouse-shortcut keystroke="control alt button1" />
   </action>
   <action id="Inline" />
+  <action id="IntroduceConstant" />
   <action id="IntroduceField" />
+  <action id="IntroduceVariable" />
   <action id="Mvc.RunTarget" />
   <action id="ReformatCode">
     <keyboard-shortcut first-keystroke="shift alt f" />
