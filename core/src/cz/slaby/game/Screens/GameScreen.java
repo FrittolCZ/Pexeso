@@ -1,4 +1,4 @@
-package slaby.cz.game.Screens;
+package cz.slaby.game.Screens;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
@@ -11,8 +11,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 
-import slaby.cz.game.GameClasses.GameStage;
-import slaby.cz.game.GameClasses.PexSprite;
+import cz.slaby.game.GameClasses.GameStage;
 
 public class GameScreen implements Screen, GestureDetector.GestureListener {
 
@@ -22,6 +21,8 @@ public class GameScreen implements Screen, GestureDetector.GestureListener {
     public static Texture pexBack = new Texture(Gdx.files.internal("pexBacks/back1.jpg"));
 
     private float time;
+
+    private boolean pause = true;
 
     public GameScreen(SpriteBatch batch, float time) {
         this.batch = batch;
@@ -39,17 +40,16 @@ public class GameScreen implements Screen, GestureDetector.GestureListener {
 
     @Override
     public void render(float delta) {
-
-        time -= delta;
-
         Gdx.gl.glClearColor(0.8f, 0.8f, 1, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        if(time <= 0)
-        {
-            ((Game) Gdx.app.getApplicationListener()).setScreen(new EndGameScreen(batch, gameStage.getPieceFound()));
+        if (!pause) {
+            time -= delta;
         }
 
+        if (time <= 0) {
+            ((Game) Gdx.app.getApplicationListener()).setScreen(new EndGameScreen(batch, gameStage.getPieceFound()));
+        }
 
         gameStage.act();
 
@@ -94,10 +94,11 @@ public class GameScreen implements Screen, GestureDetector.GestureListener {
         Vector3 pos = new Vector3(x, y, 0);
         gameStage.getCamera().unproject(pos);
         Actor hited = gameStage.hit(pos.x, pos.y, true);
-        if (hited instanceof PexSprite) {
-            PexSprite hitedPex = (PexSprite) hited;
+        if (hited instanceof cz.slaby.game.GameClasses.PexSprite) {
+            pause = false;
+            cz.slaby.game.GameClasses.PexSprite hitedPex = (cz.slaby.game.GameClasses.PexSprite) hited;
             if (!hitedPex.isTurned() && !hitedPex.isFound() && gameStage.hittedCount() < 2) {
-                hitedPex.turn();
+                hitedPex.startTurning();
                 gameStage.addHitted(hitedPex);
             }
             //

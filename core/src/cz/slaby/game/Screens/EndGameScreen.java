@@ -1,4 +1,4 @@
-package slaby.cz.game.Screens;
+package cz.slaby.game.Screens;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
@@ -8,7 +8,7 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 
-import slaby.cz.game.Pexeso;
+import cz.slaby.game.Pexeso;
 
 public class EndGameScreen implements Screen {
 

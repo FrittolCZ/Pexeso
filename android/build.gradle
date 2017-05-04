@@ -18,7 +18,7 @@ android {
         exclude 'META-INF/robovm/ios/robovm.xml'
     }
     defaultConfig {
-        applicationId "slaby.cz.game"
+        applicationId "cz.slaby.game"
         minSdkVersion 9
         targetSdkVersion 25
     }
@@ -71,7 +71,7 @@ task run(type: Exec) {
     }
 
     def adb = path + "/platform-tools/adb"
-    commandLine "$adb", 'shell', 'am', 'start', '-n', 'slaby.cz.game/slaby.cz.game.AndroidLauncher'
+    commandLine "$adb", 'shell', 'am', 'start', '-n', 'slaby.cz.game/AndroidLauncher'
 }
 
 // sets up the Android Eclipse project, using the old Ant based build.

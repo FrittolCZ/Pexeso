@@ -1,4 +1,4 @@
-package slaby.cz.game.GameClasses;
+package cz.slaby.game.GameClasses;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
@@ -42,8 +42,7 @@ public class GameStage extends Stage {
         return hitted.size();
     }
 
-    public int getPieceFound()
-    {
+    public int getPieceFound() {
         return pieceFound;
     }
 
@@ -61,8 +60,7 @@ public class GameStage extends Stage {
     }
 
     private void loadPexArray() {
-        FileHandle f = Gdx.files.internal("pexeso/animals/");
-        FileHandle[] files = f.list();
+        FileHandle[] files = Gdx.files.internal("pexeso/animals/").list();
         Texture tex;
         PexSprite pex;
         int pexCount = files.length * 2; // počet dílků pexesa
@@ -104,9 +102,8 @@ public class GameStage extends Stage {
                 maxi = i;
             }
         }
-        return maxi;
+        return j;
     }
-
 
 
     @Override
@@ -122,8 +119,8 @@ public class GameStage extends Stage {
                     hitTwo.setFound();
                     pieceFound++;
                 } else {
-                    hitOne.turn();
-                    hitTwo.turn();
+                    hitOne.startTurning();
+                    hitTwo.startTurning();
                 }
                 hitted.clear();
                 timer = 0;
