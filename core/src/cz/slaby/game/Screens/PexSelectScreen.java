@@ -1,51 +1,85 @@
 package cz.slaby.game.Screens;
 
+import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.files.FileHandle;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.NinePatch;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Container;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
-import com.badlogic.gdx.scenes.scene2d.ui.Label;
-import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
+import com.badlogic.gdx.utils.Scaling;
 
 import java.util.ArrayList;
 
 import cz.slaby.game.GUI.CheckImage;
 import cz.slaby.game.GUI.PagedScrollPane;
+import cz.slaby.game.Pexeso;
 
 
 public class PexSelectScreen implements Screen {
 
     private SpriteBatch batch;
     private Stage stage;
-    private Skin skin;
-    private Label file;
-    private Image image;
-    private Texture texture;
-    private CheckImage checkImage;
     private ArrayList<ArrayList<Texture>> pexesoSets;
+    ArrayList<ArrayList<TextureRegion>> pexesoSheetSets;
     private PagedScrollPane pagedScrollPane;
-    private ScrollPane scroll;
     private Table container;
+    private int tileCount;
+    private float time;
+    private int width, height;
 
-    public PexSelectScreen(SpriteBatch batch) {
+    public PexSelectScreen(SpriteBatch batch, int tileCount, float time) {
         this.batch = batch;
-        this.skin = cz.slaby.game.Pexeso.skin;
+        this.tileCount = tileCount;
+        this.time = time;
     }
 
     @Override
     public void show() {
         stage = new Stage();
+        width = Gdx.graphics.getWidth();
+        height = Gdx.graphics.getHeight();
+
+        Container titleWrap = new Container();
+        Texture texture = new Texture(Gdx.files.internal("background.png"));
+        Texture titleText = new Texture(Gdx.files.internal("vyber-sady-text.png"));
+        NinePatch patchUp = new NinePatch(new Texture(Gdx.files.internal("buttons/btnUp.png")), 4, 4, 4, 4);
+        NinePatch patchDown = new NinePatch(new Texture(Gdx.files.internal("buttons/btnDown.png")), 4, 4, 4, 4);
+
+        TextButton.TextButtonStyle style = new TextButton.TextButtonStyle();
+        style.up = new NinePatchDrawable(patchUp);
+        style.down = new NinePatchDrawable(patchDown);
+        style.font = createFont(20);
+        style.fontColor = new Color(253 / 255f, 26 / 255f, 20 / 255f, 1f);
+        TextButton button = new TextButton("Hraj sadu", style);
+
+        button.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                ((Game) Gdx.app.getApplicationListener()).setScreen(new GameScreen(batch
+            }
+        });
+
+        Image background = new Image(new TextureRegion(texture, width, height * 5 / 6));
+        Image title = new Image(titleText);
+
         container = new Table();
         pexesoSets = new ArrayList<ArrayList<Texture>>();
+        pexesoSheetSets = new ArrayList<ArrayList<TextureRegion>>();
+
         try {
             loadSets();
         } catch (Exception e) {
@@ -55,18 +89,33 @@ public class PexSelectScreen implements Screen {
         pagedScrollPane = new PagedScrollPane();
         pagedScrollPane.setFlingTime(0.1f);
         pagedScrollPane.setPageSpacing(25);
-        int c = 0;
-        float size = Gdx.graphics.getWidth() / 4 - 20;
-        for (ArrayList<Texture> set : pexesoSets) {
-            Table page = new Table();
-            for (Texture pexTex : set) {
-                if (c != 0 && c % 4 == 0) page.row();
-                page.add(new CheckImage(pexTex)).pad(10).size(size);
-                c++;
-            }
-            pagedScrollPane.addPage(page);
-        }
 
+
+        loadPages();
+
+
+        title.setScaling(Scaling.fillX);
+
+        titleWrap.width(width * 3 / 4).height(height / 6);
+        titleWrap.setActor(title);
+
+        container.debug();
+        container.top();
+        container.row().height(height / 6).width(width);
+        container.add(titleWrap);
+        container.row();
+        container.add(pagedScrollPane).top();
+        container.row().expandY();
+        container.add(button).bottom().right().width(width / 4 - 20).height(100).pad(20);
+
+
+        container.setFillParent(true);
+        stage.addActor(background);
+        stage.addActor(container);
+        Gdx.input.setInputProcessor(stage);
+    }
+
+    private void openGal() {
         //file = new Label("file", skin);
         /*TextButton btn = new TextButton("Text", skin);
         btn.setWidth(400f);
@@ -80,15 +129,62 @@ public class PexSelectScreen implements Screen {
                 cz.slaby.game.Pexeso.galleryOpener.getGalleryImagePath();
             }
         });*/
+    }
 
-        //Načíst defaultní pexesa
-        //Načíst pexesa uložená v interní paměti aplikace (pexesa přidaná uživatelem)
+    private void loadPages() {
+        int c = 0;
+        int pagecounter = 0;
+        float size = width / 4 - 20;
+        for (ArrayList<Texture> set : pexesoSets) {
+            Table page = new Table();
+            page.top();
+            page.debug();
+            for (Texture pexTex : set) {
+                if (c != 0 && c % 4 == 0) page.row();
+                page.add(new CheckImage(pexTex)).pad(10).size(size);
+                c++;
+                pagecounter++;
+                if (pagecounter == 16) {
+                    pagedScrollPane.addPage(page);
+                    page = new Table();
+                    page.top();
+                    pagecounter = 0;
+                    c = 0;
+                }
+            }
+            pagedScrollPane.addPage(page);
+            c = 0;
+            pagecounter = 0;
+        }
 
-        pagedScrollPane.setFillParent(true);
-        container.add(pagedScrollPane);
-        container.setFillParent(true);
-        stage.addActor(container);
-        Gdx.input.setInputProcessor(stage);
+        for (ArrayList<TextureRegion> set : pexesoSheetSets) {
+            Table page = new Table();
+            page.top();
+            for (TextureRegion pexTex : set) {
+                if (c != 0 && c % 4 == 0) page.row();
+                page.add(new CheckImage(pexTex)).pad(10).size(size);
+                c++;
+                pagecounter++;
+                if (pagecounter == 16) {
+                    pagedScrollPane.addPage(page);
+                    page = new Table();
+                    page.top();
+                    pagecounter = 0;
+                    c = 0;
+                }
+            }
+            pagedScrollPane.addPage(page);
+            c = 0;
+            pagecounter = 0;
+        }
+    }
+
+    private BitmapFont createFont(float dp) {
+        FreeTypeFontGenerator.FreeTypeFontParameter parameter = Pexeso.parameter;
+        FreeTypeFontGenerator generator = Pexeso.generator;
+        int fontSize = (int) (dp * Gdx.graphics.getDensity());
+        parameter.size = fontSize;
+        return generator.generateFont(parameter);
     }
 
     private void loadSets() {
@@ -103,19 +199,31 @@ public class PexSelectScreen implements Screen {
             internalSets = pexesosDir.list(); // všechny složky v adresáři pexeso
             for (FileHandle set : internalSets) // pro každý adresář
             {
-                FileHandle[] setImgs = set.list(); // načti všechny soubotry
-                ArrayList<Texture> imgSet = new ArrayList<Texture>(); // vytvoř nový list
-                for (FileHandle img : setImgs) {
-                    imgSet.add(new Texture(img)); // z každého souboru vytvoř texturu a ulož ji do listu
+                if (set.isDirectory()) {
+                    FileHandle[] setImgs = set.list(); // načti všechny soubotry
+                    ArrayList<Texture> imgSet = new ArrayList<Texture>(); // vytvoř nový list
+                    for (FileHandle img : setImgs) {
+                        imgSet.add(new Texture(img)); // z každého souboru vytvoř texturu a ulož ji do listu
+                    }
+                    pexesoSets.add(imgSet); // potom vlož nový list do listu všechn pexes
+                } else {
+                    Texture sheet = new Texture(set);
+                    ArrayList<TextureRegion> sheetSet = new ArrayList<TextureRegion>();
+                    TextureRegion[][] tiles = new TextureRegion(sheet).split(256, 256);
+                    for (TextureRegion[] row : tiles) {
+                        for (TextureRegion tile : row) {
+                            sheetSet.add(tile);
+                        }
+                    }
+                    pexesoSheetSets.add(sheetSet);
                 }
-                pexesoSets.add(imgSet); // potom vlož nový list do listu všechn pexes
             }
         }
     }
 
     @Override
     public void render(float delta) {
-        Gdx.gl.glClearColor(1, 0, 0, 1);
+        Gdx.gl.glClearColor(253 / 255f, 26 / 255f, 20 / 255f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         stage.act();

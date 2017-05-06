@@ -1,6 +1,7 @@
 package cz.slaby.game.GUI;
 
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.ui.CheckBox;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
@@ -15,6 +16,14 @@ public class CheckImage extends Stack {
     private Skin skin;
 
     public CheckImage(Texture texture) {
+        skin = Pexeso.skin;
+        image = new Image(texture);
+        checkBox = new CheckBox("", skin);
+        this.add(image);
+        this.add(checkBox);
+    }
+
+    public CheckImage(TextureRegion texture) {
         skin = Pexeso.skin;
         image = new Image(texture);
         checkBox = new CheckBox("", skin);
