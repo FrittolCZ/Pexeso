@@ -103,28 +103,28 @@ public class MainMenuScreen implements Screen {
         btn1.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                ((Game) Gdx.app.getApplicationListener()).setScreen(new PexSelectScreen(batch, 12, time));
+                ((Game) Gdx.app.getApplicationListener()).setScreen(new PexSelectScreen(batch, 6, time));
             }
         });
         btn2 = new Button(btn2Style);
         btn2.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                ((Game) Gdx.app.getApplicationListener()).setScreen(new PexSelectScreen(batch, 20, time));
+                ((Game) Gdx.app.getApplicationListener()).setScreen(new PexSelectScreen(batch, 10, time));
             }
         });
         btn3 = new Button(btn3Style);
         btn3.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                ((Game) Gdx.app.getApplicationListener()).setScreen(new PexSelectScreen(batch, 30, time));
+                ((Game) Gdx.app.getApplicationListener()).setScreen(new PexSelectScreen(batch, 15, time));
             }
         });
         btn4 = new Button(btn4Style);
         btn4.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                ((Game) Gdx.app.getApplicationListener()).setScreen(new PexSelectScreen(batch, 42, time));
+                ((Game) Gdx.app.getApplicationListener()).setScreen(new PexSelectScreen(batch, 21, time));
             }
         });
         btnPlus = new Button(btnPlusStyle);

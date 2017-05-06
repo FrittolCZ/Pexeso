@@ -6,10 +6,13 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.input.GestureDetector;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Actor;
+
+import java.util.ArrayList;
 
 import cz.slaby.game.GameClasses.GameStage;
 
@@ -18,21 +21,21 @@ public class GameScreen implements Screen, GestureDetector.GestureListener {
     private SpriteBatch batch;
     private GameStage gameStage;
 
-    public static Texture pexBack = new Texture(Gdx.files.internal("pexBacks/back1.jpg"));
+    public static Texture pexBack;
 
     private float time;
 
     private boolean pause = true;
 
-    public GameScreen(SpriteBatch batch, float time) {
+    public GameScreen(SpriteBatch batch, ArrayList<TextureRegion> set, Texture pexBack, float time) {
         this.batch = batch;
         this.time = time;
+        this.pexBack = pexBack;
+        gameStage = new GameStage(set);
     }
 
     @Override
     public void show() {
-        gameStage = new GameStage();
-
         GestureDetector gd = new GestureDetector(this);
         Gdx.input.setInputProcessor(gd);
     }

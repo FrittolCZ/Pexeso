@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.utils.SpriteDrawable;
 
@@ -12,7 +13,7 @@ import cz.slaby.game.Screens.GameScreen;
 public class PexSprite extends Image {
 
     private int id;
-    private Texture texture;
+    private TextureRegion texture;
     private Texture backTexture;
     private boolean turned = false;
     private boolean turning = false;
@@ -20,13 +21,14 @@ public class PexSprite extends Image {
     private boolean found = false;
     private float originX;
 
-    public PexSprite(Texture texture, int id) {
+    public PexSprite(TextureRegion texture, int id) {
         super(GameScreen.pexBack);
         this.texture = texture;
         this.backTexture = GameScreen.pexBack;
         this.id = id;
         this.originX = this.getX();
     }
+
 
     public void startTurning() {
         this.turning = true;
@@ -66,7 +68,7 @@ public class PexSprite extends Image {
                 if (this.getScaleX() > 0) {
                     Gdx.app.log("blah", "PosX: " + this.getX() + "    Width: " + this.getWidth() + "    ActualWidth: " + (this.getWidth() * this.getScaleX()));
                     this.setScaleX(this.getScaleX() - delta);
-                    this.setX(this.originX + (this.getWidth() - (this.getWidth() * this.getScaleX()))/2);
+                    this.setX(this.originX + (this.getWidth() - (this.getWidth() * this.getScaleX())) / 2);
                 } else {
                     turn();
                     turnOn = false;
@@ -81,8 +83,7 @@ public class PexSprite extends Image {
                     turnOn = true;
                 }
             }
-        }else
-        {
+        } else {
             originX = this.getX();
         }
     }

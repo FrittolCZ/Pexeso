@@ -33,18 +33,19 @@ public class PexSelectScreen implements Screen {
 
     private SpriteBatch batch;
     private Stage stage;
-    private ArrayList<ArrayList<Texture>> pexesoSets;
-    ArrayList<ArrayList<TextureRegion>> pexesoSheetSets;
+    private ArrayList<ArrayList<TextureRegion>> pexesoSets;
     private PagedScrollPane pagedScrollPane;
     private Table container;
     private int tileCount;
     private float time;
     private int width, height;
+    private ArrayList<TextureRegion> set;
 
     public PexSelectScreen(SpriteBatch batch, int tileCount, float time) {
         this.batch = batch;
         this.tileCount = tileCount;
         this.time = time;
+        set = new ArrayList<TextureRegion>();
     }
 
     @Override
@@ -69,7 +70,10 @@ public class PexSelectScreen implements Screen {
         button.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                ((Game) Gdx.app.getApplicationListener()).setScreen(new GameScreen(batch
+                set = new ArrayList<TextureRegion>(pexesoSets.get(0).subList(0, tileCount));
+                ((Game) Gdx.app.getApplicationListener()).setScreen(new GameScreen(batch,
+                        set,
+                        new Texture(Gdx.files.internal("pexBacks/pexeso-lic.png")), time));
             }
         });
 
@@ -77,8 +81,7 @@ public class PexSelectScreen implements Screen {
         Image title = new Image(titleText);
 
         container = new Table();
-        pexesoSets = new ArrayList<ArrayList<Texture>>();
-        pexesoSheetSets = new ArrayList<ArrayList<TextureRegion>>();
+        pexesoSets = new ArrayList<ArrayList<TextureRegion>>();
 
         try {
             loadSets();
@@ -99,7 +102,7 @@ public class PexSelectScreen implements Screen {
         titleWrap.width(width * 3 / 4).height(height / 6);
         titleWrap.setActor(title);
 
-        container.debug();
+        //container.debug();
         container.top();
         container.row().height(height / 6).width(width);
         container.add(titleWrap);
@@ -135,29 +138,8 @@ public class PexSelectScreen implements Screen {
         int c = 0;
         int pagecounter = 0;
         float size = width / 4 - 20;
-        for (ArrayList<Texture> set : pexesoSets) {
-            Table page = new Table();
-            page.top();
-            page.debug();
-            for (Texture pexTex : set) {
-                if (c != 0 && c % 4 == 0) page.row();
-                page.add(new CheckImage(pexTex)).pad(10).size(size);
-                c++;
-                pagecounter++;
-                if (pagecounter == 16) {
-                    pagedScrollPane.addPage(page);
-                    page = new Table();
-                    page.top();
-                    pagecounter = 0;
-                    c = 0;
-                }
-            }
-            pagedScrollPane.addPage(page);
-            c = 0;
-            pagecounter = 0;
-        }
 
-        for (ArrayList<TextureRegion> set : pexesoSheetSets) {
+        for (ArrayList<TextureRegion> set : pexesoSets) {
             Table page = new Table();
             page.top();
             for (TextureRegion pexTex : set) {
@@ -200,12 +182,12 @@ public class PexSelectScreen implements Screen {
             for (FileHandle set : internalSets) // pro každý adresář
             {
                 if (set.isDirectory()) {
-                    FileHandle[] setImgs = set.list(); // načti všechny soubotry
-                    ArrayList<Texture> imgSet = new ArrayList<Texture>(); // vytvoř nový list
+                    FileHandle[] setImgs = set.list();
+                    ArrayList<TextureRegion> imgSet = new ArrayList<TextureRegion>();
                     for (FileHandle img : setImgs) {
-                        imgSet.add(new Texture(img)); // z každého souboru vytvoř texturu a ulož ji do listu
+                        imgSet.add(new TextureRegion(new Texture(img)));
                     }
-                    pexesoSets.add(imgSet); // potom vlož nový list do listu všechn pexes
+                    pexesoSets.add(imgSet);
                 } else {
                     Texture sheet = new Texture(set);
                     ArrayList<TextureRegion> sheetSet = new ArrayList<TextureRegion>();
@@ -215,7 +197,7 @@ public class PexSelectScreen implements Screen {
                             sheetSet.add(tile);
                         }
                     }
-                    pexesoSheetSets.add(sheetSet);
+                    pexesoSets.add(sheetSet);
                 }
             }
         }

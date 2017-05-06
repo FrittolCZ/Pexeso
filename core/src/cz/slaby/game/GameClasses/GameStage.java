@@ -1,8 +1,7 @@
 package cz.slaby.game.GameClasses;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.files.FileHandle;
-import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.viewport.FitViewport;
@@ -14,18 +13,18 @@ import java.util.Random;
 public class GameStage extends Stage {
     private Table tab;
     private PexSprite pexArray[][];
-    float height, width;
-    float pieceSize;
-    ArrayList<PexSprite> hitted;
-    float timer = 0;
-    int pieceFound = 0;
+    private float height, width;
+    private float pieceSize;
+    private ArrayList<PexSprite> hitted;
+    private float timer = 0;
+    private int pieceFound = 0;
 
-    public GameStage() {
+    public GameStage(ArrayList<TextureRegion> set) {
         super(new FitViewport(Gdx.graphics.getWidth(), Gdx.graphics.getHeight()));
         tab = new Table();
         this.height = Gdx.graphics.getHeight();
         this.width = Gdx.graphics.getWidth();
-        loadPexArray();
+        loadPexArray(set);
         shufPex();
         loadTab();
         //tab.debug();
@@ -59,19 +58,17 @@ public class GameStage extends Stage {
         }
     }
 
-    private void loadPexArray() {
-        FileHandle[] files = Gdx.files.internal("pexeso/animals/").list();
-        Texture tex;
+    private void loadPexArray(ArrayList<TextureRegion> set) {
         PexSprite pex;
-        int pexCount = files.length * 2; // počet dílků pexesa
+        int pexCount = set.size() * 2; // počet dílků pexesa
         int inLine = getInLine(pexCount); // počet dílků v jedné řadě
         pexArray = new PexSprite[pexCount / inLine][inLine];
         pieceSize = Math.min(height / (pexCount / inLine), width / inLine); // velikost jednoho dílku
         int y = -1;
         for (int i = 0; i < pexCount; i++) {
             if (i % inLine == 0) y++;
-            tex = new Texture(files[i / 2]);
-            pex = new PexSprite(tex, i / 2);
+            Object o = set.get(i / 2);
+            pex = new PexSprite((TextureRegion) o, i / 2);
             try {
                 pexArray[y][i % inLine] = pex;
             } catch (Exception e) {
