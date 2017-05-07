@@ -43,7 +43,7 @@ public class Pexeso extends Game {
         //screens.add(new GameScreen(batch));
         //screens.add(new EndGameScreen(batch));
 
-        setScreen(new EndGameScreen(batch, 0));
+        setScreen(screens.get(MAIN_MENU));
     }
 
     @Override

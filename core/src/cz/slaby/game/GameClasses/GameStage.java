@@ -21,14 +21,15 @@ public class GameStage extends Stage {
     private int pieceFound = 0;
     private int pieceToFound;
 
+
     public GameStage(ArrayList<TextureRegion> set) {
         tab = new Table();
         this.pieceToFound = set.size();
         loadPexArray(set);
         shufPex();
         loadTab();
-        //tab.debug();
         tab.setFillParent(true);
+
 
         this.addActor(new Image(new TextureRegion(Pexeso.background, Pexeso.WIDTH, Pexeso.HEIGHT)));
         this.addActor(tab);
@@ -49,6 +50,10 @@ public class GameStage extends Stage {
 
     public int getPieceFound() {
         return pieceFound;
+    }
+
+    public int getPieceToFound() {
+        return pieceToFound;
     }
 
     private void shufPex() {
@@ -106,7 +111,6 @@ public class GameStage extends Stage {
         return j;
     }
 
-
     @Override
     public void act(float delta) {
         super.act(delta);
@@ -128,4 +132,6 @@ public class GameStage extends Stage {
             }
         }
     }
+
+
 }

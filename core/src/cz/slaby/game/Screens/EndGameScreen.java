@@ -25,10 +25,19 @@ public class EndGameScreen implements Screen {
     private SpriteBatch batch;
     private Stage stage;
     private int score;
+    private int position;
 
-    public EndGameScreen(SpriteBatch batch, int score) {
+    public EndGameScreen(SpriteBatch batch, int score, int maxScore) {
         this.batch = batch;
         this.score = score;
+        if (score >= (maxScore * 0.8)) {
+            position = 1;
+        } else if (score >= (maxScore * 0.6)) {
+            position = 2;
+        } else {
+            position = 3;
+        }
+
     }
 
     @Override
@@ -50,7 +59,7 @@ public class EndGameScreen implements Screen {
 
         Label.LabelStyle lblStyle = new Label.LabelStyle(createFont(42), new Color(0, 0, 0, 1));
         Label scoreLbl = new Label(String.valueOf(score), lblStyle);
-        Label positionLbl = new Label("1", lblStyle);
+        Label positionLbl = new Label(String.valueOf(position), lblStyle);
 
         values.top();
         values.add(positionLbl).expand().bottom();

@@ -3,18 +3,28 @@ package cz.slaby.game.Screens;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.input.GestureDetector;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.ui.Container;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.utils.Align;
 
 import java.util.ArrayList;
 
 import cz.slaby.game.GameClasses.GameStage;
+import cz.slaby.game.Pexeso;
 
 public class GameScreen implements Screen, GestureDetector.GestureListener {
 
@@ -28,6 +38,8 @@ public class GameScreen implements Screen, GestureDetector.GestureListener {
     private boolean timedGame = false;
 
     private boolean pause = true;
+
+    Label timeLbl;
 
     /**
      * @param batch
@@ -46,11 +58,41 @@ public class GameScreen implements Screen, GestureDetector.GestureListener {
     }
 
 
-
     @Override
     public void show() {
         GestureDetector gd = new GestureDetector(this);
         Gdx.input.setInputProcessor(gd);
+
+        Label.LabelStyle timeLblStyle = new Label.LabelStyle(createFont(20), new Color(253 / 255f, 26 / 255f, 20 / 255f, 1f));
+        Pixmap labelColor = new Pixmap((int) (Pexeso.WIDTH / 11.4f * 3.2f), (int) (Pexeso.WIDTH / 11.4f * 0.8f), Pixmap.Format.RGB888);
+        labelColor.setColor(Color.WHITE);
+        labelColor.fill();
+        Image back = new Image(new Texture(labelColor));
+        timeLblStyle.background = back.getDrawable();
+        timeLbl = new Label(formatTime((int) time), timeLblStyle);
+        timeLbl.setAlignment(Align.center);
+
+        Table wrapper = new Table();
+        wrapper.setFillParent(true);
+        wrapper.row().expand();
+        wrapper.add(timeLbl).bottom().right().pad(10).width(Pexeso.WIDTH / 11.4f * 3.2f).height(Pexeso.WIDTH / 11.4f * 0.8f);
+
+        gameStage.addActor(wrapper);
+
+    }
+
+    private String formatTime(int time) {
+        int min = time / 60;
+        int sec = time % 60;
+        String formatedTime = String.format("%02d:%02d", min, sec);
+        return formatedTime;
+    }
+
+    private BitmapFont createFont(float dp) {
+        FreeTypeFontGenerator.FreeTypeFontParameter parameter = Pexeso.parameter;
+        FreeTypeFontGenerator generator = Pexeso.generator;
+        parameter.size = (int) (dp * Gdx.graphics.getDensity());
+        return generator.generateFont(parameter);
     }
 
 
@@ -59,8 +101,9 @@ public class GameScreen implements Screen, GestureDetector.GestureListener {
         Gdx.gl.glClearColor(0.8f, 0.8f, 1, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
+
         if (gameStage.gameOver()) {
-            ((Game) Gdx.app.getApplicationListener()).setScreen(new EndGameScreen(batch, gameStage.getPieceFound()));
+            endGame();
         }
         if (timedGame) {
             if (!pause) {
@@ -68,16 +111,21 @@ public class GameScreen implements Screen, GestureDetector.GestureListener {
             }
 
             if (time <= 0) {
-                ((Game) Gdx.app.getApplicationListener()).setScreen(new EndGameScreen(batch, gameStage.getPieceFound()));
+                endGame();
             }
         }
+        timeLbl.setText(formatTime((int) time));
 
-        gameStage.act();
+        gameStage.act(delta);
 
         batch.begin();
         gameStage.draw();
         batch.end();
 
+    }
+
+    private void endGame() {
+        ((Game) Gdx.app.getApplicationListener()).setScreen(new EndGameScreen(batch, gameStage.getPieceFound(), gameStage.getPieceToFound()));
     }
 
     @Override

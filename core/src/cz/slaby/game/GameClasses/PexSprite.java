@@ -66,7 +66,6 @@ public class PexSprite extends Image {
         if (turning) {
             if (turnOn) {
                 if (this.getScaleX() > 0) {
-                    Gdx.app.log("blah", "PosX: " + this.getX() + "    Width: " + this.getWidth() + "    ActualWidth: " + (this.getWidth() * this.getScaleX()));
                     this.setScaleX(this.getScaleX() - delta);
                     this.setX(this.originX + (this.getWidth() - (this.getWidth() * this.getScaleX())) / 2);
                 } else {
@@ -75,7 +74,6 @@ public class PexSprite extends Image {
                 }
             } else {
                 if (this.getScaleX() < 1) {
-                    Gdx.app.log("blah", "PosX: " + this.getX() + "    " + "Width: " + this.getWidth());
                     this.setScaleX(this.getScaleX() + delta);
                     this.setX(this.originX + (this.getWidth() - (this.getWidth() * this.getScaleX())) / 2);
                 } else {
