@@ -15,19 +15,11 @@ public class CheckImage extends Stack {
     private CheckBox checkBox;
     private Skin skin;
 
-    public CheckImage(Texture texture) {
-        skin = Pexeso.skin;
-        image = new Image(texture);
-        checkBox = new CheckBox("", skin);
-        this.add(image);
-        this.add(checkBox);
-    }
-
     public CheckImage(TextureRegion texture) {
-        skin = Pexeso.skin;
+        //skin = Pexeso.skin;
         image = new Image(texture);
-        checkBox = new CheckBox("", skin);
+        //checkBox = new CheckBox("", skin);
         this.add(image);
-        this.add(checkBox);
+        //  this.add(checkBox);
     }
 }

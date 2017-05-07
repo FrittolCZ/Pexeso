@@ -27,14 +27,15 @@ public class AndroidLauncher extends AndroidApplication {
         super.onCreate(savedInstanceState);
         AndroidApplicationConfiguration config = new AndroidApplicationConfiguration();
         opener = new AndroidGalleryOpener(this);
-        initialize(new Pexeso(opener), config);
+        Pexeso game = new Pexeso(opener);
+        initialize(game, config);
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == RESULT_OK && requestCode == AndroidGalleryOpener.SELECT_IMAGE_CODE) {
             Uri imageUri = data.getData();
-            this.userImagePath = getPath(getContext(),imageUri);
+            this.userImagePath = getPath(getContext(), imageUri);
             Gdx.app.log("AndroidGalleryOpener", "Image path is " + userImagePath);
             opener.setImageResult(userImagePath);
         }
@@ -142,12 +143,9 @@ public class AndroidLauncher extends AndroidApplication {
                 final int column_index = cursor.getColumnIndexOrThrow(column);
                 return cursor.getString(column_index);
             }
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             Gdx.app.log("chyba", "blah", e);
-        }
-        finally {
+        } finally {
             if (cursor != null)
                 cursor.close();
         }

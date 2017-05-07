@@ -48,7 +48,7 @@ public class MainMenuScreen implements Screen {
         Table timeSelector = new Table();
         Stack stack = new Stack();
         Container titleWrap = new Container();
-        Texture texture = new Texture(Gdx.files.internal("background.png"));
+
         Texture btn1Up = new Texture(Gdx.files.internal("buttons/1-obtiznost-up.png"));
         Texture btn1Down = new Texture(Gdx.files.internal("buttons/1-obtiznost-down.png"));
         Texture btn2Up = new Texture(Gdx.files.internal("buttons/2-obtiznost-up.png"));
@@ -61,7 +61,7 @@ public class MainMenuScreen implements Screen {
         Texture btnPlusUp = new Texture(Gdx.files.internal("buttons/plus.png"));
         Texture btnMinusUp = new Texture(Gdx.files.internal("buttons/minus.png"));
 
-        Image background = new Image(new TextureRegion(texture, width, height * 5 / 6));
+        Image background = new Image(new TextureRegion(Pexeso.background, width, height * 5 / 6));
         Image title = new Image(titleText);
         title.setScaling(Scaling.fillX);
 
@@ -103,28 +103,28 @@ public class MainMenuScreen implements Screen {
         btn1.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                ((Game) Gdx.app.getApplicationListener()).setScreen(new PexSelectScreen(batch, 6, time));
+                changeScreen(6, time);
             }
         });
         btn2 = new Button(btn2Style);
         btn2.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                ((Game) Gdx.app.getApplicationListener()).setScreen(new PexSelectScreen(batch, 10, time));
+                changeScreen(10, time);
             }
         });
         btn3 = new Button(btn3Style);
         btn3.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                ((Game) Gdx.app.getApplicationListener()).setScreen(new PexSelectScreen(batch, 15, time));
+                changeScreen(15, time);
             }
         });
         btn4 = new Button(btn4Style);
         btn4.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                ((Game) Gdx.app.getApplicationListener()).setScreen(new PexSelectScreen(batch, 21, time));
+                changeScreen(21, time);
             }
         });
         btnPlus = new Button(btnPlusStyle);
@@ -179,6 +179,14 @@ public class MainMenuScreen implements Screen {
         mainMenuStage.addActor(table);
         Gdx.input.setInputProcessor(mainMenuStage);
     }
+
+    private void changeScreen(int tileCount, float time) {
+        PexSelectScreen screen = (PexSelectScreen) Pexeso.screens.get(Pexeso.PEX_SELECT);
+        screen.setTileCount(tileCount);
+        screen.setTime(time);
+        ((Game) Gdx.app.getApplicationListener()).setScreen(screen);
+    }
+
 
     @Override
     public void render(float delta) {

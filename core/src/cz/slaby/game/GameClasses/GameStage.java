@@ -3,34 +3,40 @@ package cz.slaby.game.GameClasses;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.utils.viewport.FitViewport;
 
 import java.util.ArrayList;
 import java.util.Random;
+
+import cz.slaby.game.Pexeso;
 
 
 public class GameStage extends Stage {
     private Table tab;
     private PexSprite pexArray[][];
-    private float height, width;
     private float pieceSize;
     private ArrayList<PexSprite> hitted;
     private float timer = 0;
     private int pieceFound = 0;
+    private int pieceToFound;
 
     public GameStage(ArrayList<TextureRegion> set) {
-        super(new FitViewport(Gdx.graphics.getWidth(), Gdx.graphics.getHeight()));
         tab = new Table();
-        this.height = Gdx.graphics.getHeight();
-        this.width = Gdx.graphics.getWidth();
+        this.pieceToFound = set.size();
         loadPexArray(set);
         shufPex();
         loadTab();
         //tab.debug();
         tab.setFillParent(true);
+
+        this.addActor(new Image(new TextureRegion(Pexeso.background, Pexeso.WIDTH, Pexeso.HEIGHT)));
         this.addActor(tab);
         hitted = new ArrayList<PexSprite>();
+    }
+
+    public boolean gameOver() {
+        return pieceFound == pieceToFound;
     }
 
     public void addHitted(PexSprite hitted) {
@@ -63,7 +69,7 @@ public class GameStage extends Stage {
         int pexCount = set.size() * 2; // počet dílků pexesa
         int inLine = getInLine(pexCount); // počet dílků v jedné řadě
         pexArray = new PexSprite[pexCount / inLine][inLine];
-        pieceSize = Math.min(height / (pexCount / inLine), width / inLine); // velikost jednoho dílku
+        pieceSize = Math.min(Pexeso.HEIGHT / (pexCount / inLine), Pexeso.WIDTH / inLine); // velikost jednoho dílku
         int y = -1;
         for (int i = 0; i < pexCount; i++) {
             if (i % inLine == 0) y++;
@@ -78,25 +84,23 @@ public class GameStage extends Stage {
     }
 
     private void loadTab() {
-        for (int i = 0; i < pexArray.length; i++) {
-            for (int j = 0; j < pexArray[i].length; j++) {
-                tab.add(pexArray[i][j]).pad(10).size(pieceSize - 20);
+        for (PexSprite[] aPexArray : pexArray) {
+            for (PexSprite anAPexArray : aPexArray) {
+                tab.add(anAPexArray).pad(10).size(pieceSize - 20);
             }
             tab.row();
         }
-        tab.center();
+        tab.padTop(30).top();
     }
 
     private int getInLine(int pexCount) {
-        int maxi, i, j;
+        int i, j;
         i = 1;
         j = pexCount;
-        maxi = i;
         while (i < j) {
             i++;
             if (pexCount % i == 0) {
                 j = pexCount / i;
-                maxi = i;
             }
         }
         return j;

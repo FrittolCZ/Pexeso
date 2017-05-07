@@ -25,14 +25,27 @@ public class GameScreen implements Screen, GestureDetector.GestureListener {
 
     private float time;
 
+    private boolean timedGame = false;
+
     private boolean pause = true;
 
+    /**
+     * @param batch
+     * @param set     - Pictures from selected set
+     * @param pexBack - Selected back
+     * @param time    - time for the game. If time is zero, game will last till every pair wasnt found
+     */
     public GameScreen(SpriteBatch batch, ArrayList<TextureRegion> set, Texture pexBack, float time) {
         this.batch = batch;
+        if (time != 0) {
+            timedGame = true;
+        }
         this.time = time;
         this.pexBack = pexBack;
         gameStage = new GameStage(set);
     }
+
+
 
     @Override
     public void show() {
@@ -46,12 +59,17 @@ public class GameScreen implements Screen, GestureDetector.GestureListener {
         Gdx.gl.glClearColor(0.8f, 0.8f, 1, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        if (!pause) {
-            time -= delta;
-        }
-
-        if (time <= 0) {
+        if (gameStage.gameOver()) {
             ((Game) Gdx.app.getApplicationListener()).setScreen(new EndGameScreen(batch, gameStage.getPieceFound()));
+        }
+        if (timedGame) {
+            if (!pause) {
+                time -= delta;
+            }
+
+            if (time <= 0) {
+                ((Game) Gdx.app.getApplicationListener()).setScreen(new EndGameScreen(batch, gameStage.getPieceFound()));
+            }
         }
 
         gameStage.act();

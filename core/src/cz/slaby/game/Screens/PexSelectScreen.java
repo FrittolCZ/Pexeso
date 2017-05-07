@@ -36,16 +36,22 @@ public class PexSelectScreen implements Screen {
     private ArrayList<ArrayList<TextureRegion>> pexesoSets;
     private PagedScrollPane pagedScrollPane;
     private Table container;
-    private int tileCount;
-    private float time;
+    private int tileCount = 0;
+    private float time = 0;
     private int width, height;
     private ArrayList<TextureRegion> set;
 
-    public PexSelectScreen(SpriteBatch batch, int tileCount, float time) {
+    public PexSelectScreen(SpriteBatch batch) {
         this.batch = batch;
-        this.tileCount = tileCount;
-        this.time = time;
         set = new ArrayList<TextureRegion>();
+    }
+
+    public void setTileCount(int tileCount) {
+        this.tileCount = tileCount;
+    }
+
+    public void setTime(float time) {
+        this.time = time;
     }
 
     @Override
@@ -55,7 +61,6 @@ public class PexSelectScreen implements Screen {
         height = Gdx.graphics.getHeight();
 
         Container titleWrap = new Container();
-        Texture texture = new Texture(Gdx.files.internal("background.png"));
         Texture titleText = new Texture(Gdx.files.internal("vyber-sady-text.png"));
         NinePatch patchUp = new NinePatch(new Texture(Gdx.files.internal("buttons/btnUp.png")), 4, 4, 4, 4);
         NinePatch patchDown = new NinePatch(new Texture(Gdx.files.internal("buttons/btnDown.png")), 4, 4, 4, 4);
@@ -77,7 +82,7 @@ public class PexSelectScreen implements Screen {
             }
         });
 
-        Image background = new Image(new TextureRegion(texture, width, height * 5 / 6));
+        Image background = new Image(new TextureRegion(Pexeso.background, width, height * 5 / 6));
         Image title = new Image(titleText);
 
         container = new Table();
