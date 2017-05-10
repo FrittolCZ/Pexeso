@@ -40,10 +40,11 @@ public class Pexeso extends Game {
         parameter.characters += "ěščřžýáíéĚŠČŘŽÝÁÍÉ";
         screens.add(new MainMenuScreen(batch));
         screens.add(new PexSelectScreen(batch));
-        //screens.add(new GameScreen(batch));
-        //screens.add(new EndGameScreen(batch));
+        screens.add(new GameScreen(batch));
+        screens.add(new EndGameScreen(batch));
 
         setScreen(screens.get(MAIN_MENU));
+        //setScreen(new EndGameScreen(batch, 0, 0));
     }
 
     @Override

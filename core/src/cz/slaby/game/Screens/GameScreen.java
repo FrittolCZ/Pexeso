@@ -2,6 +2,10 @@ package cz.slaby.game.Screens;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
+import com.badlogic.gdx.InputAdapter;
+import com.badlogic.gdx.InputMultiplexer;
+import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
@@ -24,6 +28,7 @@ import com.badlogic.gdx.utils.Align;
 import java.util.ArrayList;
 
 import cz.slaby.game.GameClasses.GameStage;
+import cz.slaby.game.GameClasses.PexSprite;
 import cz.slaby.game.Pexeso;
 
 public class GameScreen implements Screen, GestureDetector.GestureListener {
@@ -33,27 +38,38 @@ public class GameScreen implements Screen, GestureDetector.GestureListener {
 
     public static Texture pexBack;
 
+    private float timeOrigin;
     private float time;
 
     private boolean timedGame = false;
 
     private boolean pause = true;
 
-    Label timeLbl;
+    private ArrayList<TextureRegion> set;
 
-    /**
-     * @param batch
-     * @param set     - Pictures from selected set
-     * @param pexBack - Selected back
-     * @param time    - time for the game. If time is zero, game will last till every pair wasnt found
-     */
-    public GameScreen(SpriteBatch batch, ArrayList<TextureRegion> set, Texture pexBack, float time) {
+    private Label timeLbl, exitLbl;
+
+    private boolean exit = false;
+    private float exitTimer = 0;
+
+
+    public GameScreen(SpriteBatch batch) {
         this.batch = batch;
+    }
+
+    public void setGame(ArrayList<TextureRegion> set, Texture pexBack, float time) {
         if (time != 0) {
             timedGame = true;
         }
         this.time = time;
+        this.timeOrigin = time;
         this.pexBack = pexBack;
+        this.set = set;
+        gameStage = new GameStage(set);
+    }
+
+    public void resetGame() {
+        this.time = timeOrigin;
         gameStage = new GameStage(set);
     }
 
@@ -61,21 +77,55 @@ public class GameScreen implements Screen, GestureDetector.GestureListener {
     @Override
     public void show() {
         GestureDetector gd = new GestureDetector(this);
-        Gdx.input.setInputProcessor(gd);
+        InputProcessor backProcessor = new InputAdapter() {
+            @Override
+            public boolean keyDown(int keycode) {
+
+                if (keycode == Input.Keys.BACK)
+                    if (exit) {
+                        exitLbl.setVisible(false);
+                        exit = false;
+                        ((Game) Gdx.app.getApplicationListener()).setScreen(Pexeso.screens.get(Pexeso.MAIN_MENU));
+                    } else {
+                        exitLbl.setVisible(true);
+                        exit = true;
+                    }
+                return false;
+            }
+        };
+
+        InputMultiplexer multiplexer = new InputMultiplexer(gd, backProcessor);
+        Gdx.input.setInputProcessor(multiplexer);
+        Gdx.input.setCatchBackKey(true);
+
 
         Label.LabelStyle timeLblStyle = new Label.LabelStyle(createFont(20), new Color(253 / 255f, 26 / 255f, 20 / 255f, 1f));
         Pixmap labelColor = new Pixmap((int) (Pexeso.WIDTH / 11.4f * 3.2f), (int) (Pexeso.WIDTH / 11.4f * 0.8f), Pixmap.Format.RGB888);
         labelColor.setColor(Color.WHITE);
         labelColor.fill();
         Image back = new Image(new Texture(labelColor));
+
         timeLblStyle.background = back.getDrawable();
         timeLbl = new Label(formatTime((int) time), timeLblStyle);
         timeLbl.setAlignment(Align.center);
 
+        Label.LabelStyle exitLblStyle = new Label.LabelStyle(createFont(18), Color.WHITE);
+        labelColor = new Pixmap((int) (Pexeso.WIDTH / 11.4f * 3.2f), (int) (Pexeso.WIDTH / 11.4f * 0.8f), Pixmap.Format.RGBA8888);
+        labelColor.setColor(new Color(0, 0, 0, 0.5f));
+        labelColor.fill();
+        back = new Image(new Texture(labelColor));
+
+        exitLblStyle.background = back.getDrawable();
+        exitLbl = new Label("Stiskněte zpět pro ukončení hry", exitLblStyle);
+        exitLbl.setAlignment(Align.center);
+        exitLbl.setVisible(false);
+
         Table wrapper = new Table();
         wrapper.setFillParent(true);
         wrapper.row().expand();
+        wrapper.add(exitLbl).bottom().left().pad(10).width(exitLbl.getWidth() + 20);
         wrapper.add(timeLbl).bottom().right().pad(10).width(Pexeso.WIDTH / 11.4f * 3.2f).height(Pexeso.WIDTH / 11.4f * 0.8f);
+
 
         gameStage.addActor(wrapper);
 
@@ -102,6 +152,15 @@ public class GameScreen implements Screen, GestureDetector.GestureListener {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
 
+        if (exit) {
+            exitTimer += delta;
+            if (exitTimer >= 2f) {
+                exit = false;
+                exitLbl.setVisible(false);
+                exitTimer = 0;
+            }
+        }
+
         if (gameStage.gameOver()) {
             endGame();
         }
@@ -125,7 +184,9 @@ public class GameScreen implements Screen, GestureDetector.GestureListener {
     }
 
     private void endGame() {
-        ((Game) Gdx.app.getApplicationListener()).setScreen(new EndGameScreen(batch, gameStage.getPieceFound(), gameStage.getPieceToFound()));
+        EndGameScreen screen = (EndGameScreen) Pexeso.screens.get(Pexeso.END_GAME);
+        screen.setResults(gameStage.getPieceFound(), gameStage.getPieceToFound());
+        ((Game) Gdx.app.getApplicationListener()).setScreen(screen);
     }
 
     @Override
@@ -166,7 +227,7 @@ public class GameScreen implements Screen, GestureDetector.GestureListener {
         if (hited instanceof cz.slaby.game.GameClasses.PexSprite) {
             pause = false;
             cz.slaby.game.GameClasses.PexSprite hitedPex = (cz.slaby.game.GameClasses.PexSprite) hited;
-            if (!hitedPex.isTurned() && !hitedPex.isFound() && gameStage.hittedCount() < 2) {
+            if (!hitedPex.isTurned() && !hitedPex.isFound() && !hitedPex.isTurning() && gameStage.hittedCount() < 2) {
                 hitedPex.startTurning();
                 gameStage.addHitted(hitedPex);
             }

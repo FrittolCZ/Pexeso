@@ -2,6 +2,10 @@ package cz.slaby.game.Screens;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
+import com.badlogic.gdx.InputAdapter;
+import com.badlogic.gdx.InputMultiplexer;
+import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
@@ -23,6 +27,9 @@ import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
 import com.badlogic.gdx.utils.Scaling;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Random;
 
 import cz.slaby.game.GUI.CheckImage;
 import cz.slaby.game.GUI.PagedScrollPane;
@@ -75,10 +82,12 @@ public class PexSelectScreen implements Screen {
         button.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
+                long seed = System.nanoTime();
+                Collections.shuffle(pexesoSets.get(0), new Random(seed));
                 set = new ArrayList<TextureRegion>(pexesoSets.get(0).subList(0, tileCount));
-                ((Game) Gdx.app.getApplicationListener()).setScreen(new GameScreen(batch,
-                        set,
-                        new Texture(Gdx.files.internal("pexBacks/pexeso-lic.png")), time));
+                GameScreen screen = (GameScreen) Pexeso.screens.get(Pexeso.GAME);
+                screen.setGame(set, new Texture(Gdx.files.internal("pexBacks/pexeso-lic.png")), time);
+                ((Game) Gdx.app.getApplicationListener()).setScreen(screen);
             }
         });
 
@@ -104,7 +113,7 @@ public class PexSelectScreen implements Screen {
 
         title.setScaling(Scaling.fillX);
 
-        titleWrap.width(width * 3 / 4).height(height / 6);
+        titleWrap.width(width /11.4f * 6.8f).height(height / 6);
         titleWrap.setActor(title);
 
         //container.debug();
@@ -120,7 +129,21 @@ public class PexSelectScreen implements Screen {
         container.setFillParent(true);
         stage.addActor(background);
         stage.addActor(container);
-        Gdx.input.setInputProcessor(stage);
+
+
+        InputProcessor backProcessor = new InputAdapter() {
+            @Override
+            public boolean keyDown(int keycode) {
+
+                if (keycode == Input.Keys.BACK)
+                    ((Game) Gdx.app.getApplicationListener()).setScreen(Pexeso.screens.get(Pexeso.MAIN_MENU));
+                return false;
+            }
+        };
+
+        InputMultiplexer multiplexer = new InputMultiplexer(stage, backProcessor);
+        Gdx.input.setInputProcessor(multiplexer);
+        Gdx.input.setCatchBackKey(true);
     }
 
     private void openGal() {

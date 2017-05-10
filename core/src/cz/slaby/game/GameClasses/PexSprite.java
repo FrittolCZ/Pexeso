@@ -51,6 +51,10 @@ public class PexSprite extends Image {
         return found;
     }
 
+    public boolean isTurning() {
+        return turning;
+    }
+
     public void turn() {
         if (turned) {
             this.setDrawable(new SpriteDrawable(new Sprite(backTexture)));

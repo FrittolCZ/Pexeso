@@ -2,6 +2,10 @@ package cz.slaby.game.Screens;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
+import com.badlogic.gdx.InputAdapter;
+import com.badlogic.gdx.InputMultiplexer;
+import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
@@ -32,6 +36,9 @@ public class MainMenuScreen implements Screen {
     private SpriteBatch batch;
     private Stage mainMenuStage;
     private int time = 0;
+    private Label exitLbl;
+    private boolean exit = false;
+    private float exitTimer = 0;
 
     public MainMenuScreen(SpriteBatch batch) {
         this.batch = batch;
@@ -60,6 +67,8 @@ public class MainMenuScreen implements Screen {
         Texture titleText = new Texture(Gdx.files.internal("vyber-obtiznost-text.png"));
         Texture btnPlusUp = new Texture(Gdx.files.internal("buttons/plus.png"));
         Texture btnMinusUp = new Texture(Gdx.files.internal("buttons/minus.png"));
+        Texture btnPlusDown = new Texture(Gdx.files.internal("buttons/plus-down.png"));
+        Texture btnMinusDown = new Texture(Gdx.files.internal("buttons/minus-down.png"));
 
         Image background = new Image(new TextureRegion(Pexeso.background, width, height * 5 / 6));
         Image title = new Image(titleText);
@@ -90,11 +99,11 @@ public class MainMenuScreen implements Screen {
 
         Button.ButtonStyle btnPlusStyle = new Button.ButtonStyle();
         btnPlusStyle.up = new TextureRegionDrawable(new TextureRegion(btnPlusUp));
-        btnPlusStyle.down = new TextureRegionDrawable(new TextureRegion(btnPlusUp));
+        btnPlusStyle.down = new TextureRegionDrawable(new TextureRegion(btnPlusDown));
 
         Button.ButtonStyle btnMinusStyle = new Button.ButtonStyle();
         btnMinusStyle.up = new TextureRegionDrawable(new TextureRegion(btnMinusUp));
-        btnMinusStyle.down = new TextureRegionDrawable(new TextureRegion(btnMinusUp));
+        btnMinusStyle.down = new TextureRegionDrawable(new TextureRegion(btnMinusDown));
 
         timeLbl = new Label(formatTime(time), timeLblStyle);
         timeLbl.setAlignment(Align.center);
@@ -150,9 +159,9 @@ public class MainMenuScreen implements Screen {
 
 
         timeSelector.row().height(width / 11.4f * 0.8f);
-        timeSelector.add(btnMinus).left().width(width / 11.4f * 0.6f);
+        timeSelector.add(btnMinus).left().width(width / 11.4f * 0.6f).height(width / 11.4f * 0.6f);
         timeSelector.add(timeLbl).center().width(width / 11.4f * 2.2f);
-        timeSelector.add(btnPlus).right().width(width / 11.4f * 0.6f);
+        timeSelector.add(btnPlus).right().width(width / 11.4f * 0.6f).height(width / 11.4f * 0.6f);
         //timeSelector.debug();
 
         stack.add(back);
@@ -160,6 +169,18 @@ public class MainMenuScreen implements Screen {
 
         titleWrap.width(width * 3 / 4).height(height / 6);
         titleWrap.setActor(title);
+
+
+        Label.LabelStyle exitLblStyle = new Label.LabelStyle(createFont(18), Color.WHITE);
+        labelColor = new Pixmap((int) (Pexeso.WIDTH / 11.4f * 3.2f), (int) (Pexeso.WIDTH / 11.4f * 0.8f), Pixmap.Format.RGBA8888);
+        labelColor.setColor(new Color(0, 0, 0, 0.5f));
+        labelColor.fill();
+        back = new Image(new Texture(labelColor));
+
+        exitLblStyle.background = back.getDrawable();
+        exitLbl = new Label("Stiskněte zpět pro ukončení aplikace", exitLblStyle);
+        exitLbl.setAlignment(Align.center);
+        exitLbl.setVisible(false);
 
         //table.debug();
         table.setFillParent(true);
@@ -173,11 +194,33 @@ public class MainMenuScreen implements Screen {
         table.add(btn4).left().padLeft(width / 17.1f);
         table.row().expand();
         table.add(stack).colspan(2).bottom().right().width(width / 11.4f * 3.6f).height(width / 11.4f * 0.7f).pad(width / 11.4f);
+        table.row().expand();
+        table.add(exitLbl).colspan(2).bottom().left().pad(10);
 
         table.top();
         mainMenuStage.addActor(background);
         mainMenuStage.addActor(table);
-        Gdx.input.setInputProcessor(mainMenuStage);
+
+        InputProcessor backProcessor = new InputAdapter() {
+            @Override
+            public boolean keyDown(int keycode) {
+
+                if (keycode == Input.Keys.BACK)
+                    if (exit) {
+                        exitLbl.setVisible(false);
+                        exit = false;
+                        Gdx.app.exit();
+                    } else {
+                        exitLbl.setVisible(true);
+                        exit = true;
+                    }
+                return false;
+            }
+        };
+
+        InputMultiplexer multiplexer = new InputMultiplexer(mainMenuStage, backProcessor);
+        Gdx.input.setInputProcessor(multiplexer);
+        Gdx.input.setCatchBackKey(true);
     }
 
     private void changeScreen(int tileCount, float time) {
@@ -192,6 +235,15 @@ public class MainMenuScreen implements Screen {
     public void render(float delta) {
         Gdx.gl.glClearColor(253 / 255f, 26 / 255f, 20 / 255f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+
+        if (exit) {
+            exitTimer += delta;
+            if (exitTimer >= 2f) {
+                exit = false;
+                exitLbl.setVisible(false);
+                exitTimer = 0;
+            }
+        }
 
         batch.begin();
         mainMenuStage.draw();
